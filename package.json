@@ -10,8 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^4.15.0",
+    "dayjs": "^1.11.8",
     "dotenv": "^16.1.0",
-    "fastify": "^4.17.0"
+    "fastify": "^4.17.0",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/node": "^20.2.5",

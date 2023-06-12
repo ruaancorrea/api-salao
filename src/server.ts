@@ -1,7 +1,12 @@
 import 'dotenv/config'
 
 import fastify from "fastify";
+import z from 'zod'
+import dayjs from 'dayjs'
+import ptBr from 'dayjs/locale/pt-br'
 import { PrismaClient } from '@prisma/client'
+
+dayjs.locale(ptBr)
 
 const prisma = new PrismaClient()
 
@@ -29,7 +34,13 @@ app.get('/user', async (req, res) => {
 // Cria usuario
 app.post('/user', async (req, res) => {
 
-    const body = req.body
+	const userScheme = z.object({
+		name: z.string().trim(),
+		email: z.string().email().trim(),
+		password: z.string()
+	})
+
+    const body = userScheme.parse(req.body)
 
     const User = await prisma.user.create({
         data: body
@@ -41,11 +52,11 @@ app.post('/user', async (req, res) => {
 // Lista usuario unico
 app.get('/user/:id', async (req, res) => {
 
-    const params = req.params
+    const {id} = req.params
 
     const User = await prisma.user.findUnique({
         where: {
-            id: Number(params.id)
+            id: Number(id)
         }
     });
 
@@ -60,27 +71,40 @@ app.get('/user/:id', async (req, res) => {
 // Atualiza usuario
 app.put('/user/:id', async (req, res) => {
 
-    const params = req.params
-    const body = req.body
+    const {id} = req.params
+
+	const userScheme = z.object({
+		name: z.string().trim(),
+		email: z.string().email().trim(),
+		password: z.string()
+	})
+
+
+
+	const { email, name, password } = userScheme.parse(req.body)
 
     const User = await prisma.user.update({
         where: {
-            id: Number(params.id)
+            id: Number(id)
         },
-        data: body
+        data:{
+			name,
+			email,
+			password
+		}
     });
 
-    res.status(200).send(User)
+	res.status(200).send(User)
 })
 
 // Deleta usuario
 app.delete('/user/:id', async (req, res) => {
 
-    const params = req.params
+    const { id } = req.params
 
     const User = await prisma.user.delete({
         where: {
-            id: Number(params.id)
+            id: Number(id)
         }
     });
 
@@ -105,11 +129,11 @@ app.get('/client', async (req, response) => {
 // Lista Client Unique
 app.get('/client/:id', async (req, res) => {
 
-	const params = req.params
+	const {id} = req.params
 
 	const Client = await prisma.client.findUnique({
 		where: {
-			id: Number(params.id)
+			id: Number(id)
 		},
 		select: {
 			id: true,
@@ -123,52 +147,171 @@ app.get('/client/:id', async (req, res) => {
 })
 
 // Create Client
-app.post('/client', async (req, res) => {
+app.post('/client', async (req,res) => {
 
-	const body = req.body
+	const clientScheme = z.object({
+		email: z.string().email({ message: "Invalid email address" }).trim(),
+		name: z.string().trim(),
+		telefone: z.string().trim(),
+		cpf: z.string().min(11,{ message: "cpf is not invalid" }).trim(),
+		password: z.string().min(8, { message: "password less than 8 characters" } ).trim(),
+
+	});
+
+	const { email, name, telefone, cpf, password } = clientScheme.parse(req.body)
 
 	const Client = await prisma.client.create({
-		data: body
+		data: {
+			email,
+			name,
+			cpf,
+			telefone,
+			password
+		}
 	})
 
 	res.status(201).send(Client)
 
-})
+});
 
 // Update Client
 app.put('/client/:id', async (req,res) => {
 
 	// Pega parametros da URL
-	const params = req.params
+	const { id } = req.params
 
 	// Pega dados do Body da requisiçao
 	const body = req.body
 
 	const Client = await prisma.client.update({
 		where:{
-			id: Number(params.id)
+			id: Number(id)
 		},
 		data: body
-	})
+	});
 
 	res.status(200).send(Client)
 
-})
+});
 
 // Delete Client
 app.delete('/client/:id', async (req, res) => {
 
-	const params = req.params
+	const { id } = req.params
 
 	const Client = await prisma.client.delete({
 		where: {
-			id: Number(params.id)
+			id: Number(id)
 		}
 	})
 
-	res.status(200).send(Client)
+	res.status(200).send("Cliente deletado com sucesso!")
 
-})
+});
+
+//LISTAR SCHEDULE
+app.get('/agenda', async (req,res) => {
+
+    const agenda = await prisma.schedule.findMany({
+		select: {
+			id: true,
+			description: true,
+			date: true,
+			clientId: true
+		}
+	});
+
+    res.status(200).send(agenda)
+
+});
+
+// Lista SCHEDULE Unique
+app.get('/agenda/:id', async (req, res) => {
+
+	const  { id } = req.params
+
+	const agenda = await prisma.schedule.findUniqueOrThrow({
+        where: {
+            id: Number(id)
+		}
+	});
+
+	res.status(200).send(agenda)
+
+});
+
+//CREATE SCHEDULE
+
+app.post('/agenda', async (req, res) => {
+
+	const agendaScheme = z.object({
+		description: z.string().trim(),
+		clientId: z.number(),
+		date: z.coerce.date()
+	});
+
+	const { clientId, description, date } = agendaScheme.parse(req.body)
+
+	const agenda = await prisma.schedule.create({
+		data: {
+			clientId,
+			description,
+			date: dayjs(date).format()
+
+		}
+	})
+
+	res.status(201).send(agenda)
+
+});
+
+
+// Update Schedule
+
+app.put('/agenda/:id', async (req,res) => {
+
+    const  { id } = req.params
+
+	const agendaScheme = z.object({
+		description: z.string(),
+		date: z.coerce.date(),
+	});
+
+
+
+    const { description , date } = agendaScheme.parse(req.body)
+
+	const agenda = await prisma.schedule.update({
+		where:{
+			id: Number(id)
+		},
+		data:{
+			description,
+			date
+		}
+	})
+
+	res.status(200).send(agenda)
+
+
+});
+
+//Delet Schedule
+
+app.delete('/agenda/:id', async (req, res) => {
+
+	const { id } = req.params
+
+	const Agenda = await prisma.schedule.delete({
+		where: {
+			id: Number(id)
+		}
+	})
+
+	res.status(200).send("Agendamento deletado com sucesso!")
+
+});
+
 
 
 // Rodando o sevidor http

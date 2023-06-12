@@ -16,11 +16,20 @@ model User {
 }
 
 model Client {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
   name      String
   telefone  String
   cpf       String?
   password  String
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
+  Schedule  Schedule[]
+}
+
+model Schedule {
+  id          Int      @id @default(autoincrement())
+  date        DateTime
+  description String
+  clientId    Int
+  client      Client   @relation(fields: [clientId], references: [id])
 }
