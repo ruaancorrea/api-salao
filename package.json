@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/jwt": "^7.0.0",
     "@prisma/client": "^4.15.0",
     "dayjs": "^1.11.8",
     "dotenv": "^16.1.0",

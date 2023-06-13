@@ -5,6 +5,10 @@ import dayjs from "dayjs";
 
 export async function scheduleRoutes(app: FastifyInstance){
 
+	app.addHook('preHandler', async (req) => {
+		await req.jwtVerify()
+	})
+
 	//LISTAR SCHEDULE
 	app.get('/schedule', async (req,res) => {
 

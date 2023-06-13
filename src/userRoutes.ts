@@ -4,6 +4,10 @@ import { z } from "zod";
 
 export async function userRoutes(app: FastifyInstance) {
 
+	app.addHook('preHandler', async (req) => {
+		await req.jwtVerify()
+	})
+
 	// Lista todos os usuarios
 	app.get('/user', async (req, res) => {
 

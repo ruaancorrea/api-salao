@@ -4,6 +4,10 @@ import { z } from "zod"
 
 export async function clientRoutes(app: FastifyInstance) {
 
+	app.addHook('preHandler', async (req) => {
+		await req.jwtVerify()
+	})
+
 	// Lista Client
 	app.get('/client', async (req, response) => {
 

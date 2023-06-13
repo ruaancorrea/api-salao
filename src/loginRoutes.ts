@@ -14,7 +14,19 @@ export async function loginRoutes (app: FastifyInstance) {
 		})
 
 		if(User[0].email === body.email && User[0].password === body.password){
-			res.status(200).send("Logado com sucesso!")
+
+			const token = app.jwt.sign(
+				{
+					id: User[0].id,
+					name: User[0].name,
+					email: User[0].email,
+				},{
+					expiresIn: 86400
+				}
+			)
+
+			res.status(200).send({ token })
+
 		}else{
 			return "Falha ao fazer login"
 		}
@@ -31,7 +43,19 @@ export async function loginRoutes (app: FastifyInstance) {
 		})
 
 		if(Client[0].email === body.email && Client[0].password === body.password){
-			res.status(200).send("Logado com sucesso!")
+
+			const token = app.jwt.sign(
+				{
+					id: Client[0].id,
+					name: Client[0].name,
+					email: Client[0].email,
+				},{
+					expiresIn: 86400
+				}
+			)
+
+			res.status(200).send({ token })
+
 		}else{
 			return "Falha ao fazer login"
 		}
