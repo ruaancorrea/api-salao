@@ -9,6 +9,7 @@ import { userRoutes } from './userRoutes'
 import { clientRoutes } from './clientRoutes'
 import { scheduleRoutes } from './scheduleRoutes'
 import { loginRoutes } from './loginRoutes'
+import axios from 'axios'
 
 dayjs.locale(ptBr)
 

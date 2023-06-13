@@ -26,6 +26,8 @@ export async function userRoutes(app: FastifyInstance) {
 			password: z.string()
 		})
 
+		console.log(req.body)
+
 		const body = userScheme.parse(req.body)
 
 		const User = await prisma.user.create({

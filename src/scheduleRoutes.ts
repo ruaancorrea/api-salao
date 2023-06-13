@@ -13,11 +13,8 @@ export async function scheduleRoutes(app: FastifyInstance){
 	app.get('/schedule', async (req,res) => {
 
 		const schedule = await prisma.schedule.findMany({
-			select: {
-				id: true,
-				description: true,
-				date: true,
-				clientId: true
+			include: {
+				client: true
 			}
 		});
 
@@ -33,6 +30,9 @@ export async function scheduleRoutes(app: FastifyInstance){
 		const schedule = await prisma.schedule.findUniqueOrThrow({
 			where: {
 				id: Number(id)
+			},
+			include: {
+				client: true
 			}
 		});
 
