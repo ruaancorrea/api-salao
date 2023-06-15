@@ -8,22 +8,24 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String
-  password  String
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  name       String
+  password   String
+  avatar_url String?
+  createdAt  DateTime @default(now())
 }
 
 model Client {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  name      String
-  telefone  String
-  cpf       String?
-  password  String
-  createdAt DateTime   @default(now())
-  Schedule  Schedule[]
+  id         Int        @id @default(autoincrement())
+  email      String     @unique
+  name       String
+  telefone   String
+  cpf        String?
+  password   String
+  avatar_url String?
+  createdAt  DateTime   @default(now())
+  Schedule   Schedule[]
 }
 
 model Schedule {

@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify"
-import { prisma } from './lib/prisma'
+import { prisma } from '../lib/prisma'
 import { z } from "zod";
+import bcrypt from 'bcryptjs'
 
 export async function userRoutes(app: FastifyInstance) {
 
@@ -26,12 +27,16 @@ export async function userRoutes(app: FastifyInstance) {
 			password: z.string()
 		})
 
-		console.log(req.body)
+		const { name, email, password } = userScheme.parse(req.body)
 
-		const body = userScheme.parse(req.body)
+		const encryptedPassword = await bcrypt.hash(password, 10)
 
 		const User = await prisma.user.create({
-			data: body
+			data: {
+				name,
+				email,
+				password: encryptedPassword,
+			}
 		})
 
 		res.status(201).send(User)

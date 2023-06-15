@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify"
-import { prisma } from './lib/prisma'
+import { prisma } from '../lib/prisma'
+import bcrypt from 'bcryptjs'
 
 export async function loginRoutes (app: FastifyInstance) {
 
@@ -13,7 +14,9 @@ export async function loginRoutes (app: FastifyInstance) {
 			}
 		})
 
-		if(User[0].email === body.email && User[0].password === body.password){
+		const login = await bcrypt.compare(body.password, User[0].password)
+
+		if(login){
 
 			const token = app.jwt.sign(
 				{
